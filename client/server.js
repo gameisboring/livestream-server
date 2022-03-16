@@ -2,7 +2,7 @@ const express = require('express')
 const app = express()
 const port = 80
 
-app.use('/data', express.static('data'))
+app.use('../data', express.static('data'))
 
 app.set('views', __dirname + '/views')
 app.set('view engine', 'ejs')

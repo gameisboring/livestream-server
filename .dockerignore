@@ -1,0 +1,7 @@
+.gitignore
+Dockerfile
+docker-compose.yml
+rtmp
+auth
+node_modules
+data
