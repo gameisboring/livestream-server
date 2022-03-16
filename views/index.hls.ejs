@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+    <script>
+      if (Hls.isSupported()) {
+        console.log('hello hls.js!')
+      }
+    </script>
+    <title>Document</title>
+  </head>
+  <body>
+    <h1><%= title %></h1>
+    <h2><%= message %></h2>
+    <video controls autoplay id="video"></video>
+    <script>
+      const video = document.getElementById('video')
+      const videoSrc = 'data/test.m3u8'
+      if (video.canPlayType('application/vnd.apple.mpegurl')) {
+        video.src = videoSrc
+      } else if (Hls.isSupported()) {
+        const hls = new Hls()
+        // bind them together
+        hls.loadSource(videoSrc)
+        hls.attachMedia(video)
+        // MEDIA_ATTACHED event is fired by hls object once MediaSource is ready
+        hls.on(Hls.Events.MEDIA_ATTACHED, function () {
+          console.log('video and hls.js are now bound together !')
+          hls.on(Hls.Events.MANIFEST_PARSED, function (event, data) {
+            console.log(
+              'manifest loaded, found ' + data.levels.length + ' quality level'
+            )
+          })
+        })
+
+        hls.on(Hls.Events.ERROR, function (event, data) {
+          if (data.fatal) {
+            switch (data.type) {
+              case Hls.ErrorTypes.NETWORK_ERROR:
+                // try to recover network error
+                console.log('fatal network error encountered, try to recover')
+                hls.startLoad()
+                break
+              case Hls.ErrorTypes.MEDIA_ERROR:
+                console.log('fatal media error encountered, try to recover')
+                hls.recoverMediaError()
+                break
+              default:
+                // cannot recover
+                hls.destroy()
+                break
+            }
+          }
+        })
+      }
+    </script>
+  </body>
+</html>
